@@ -4,6 +4,7 @@ import (
     "fmt"
     "net/url"
     "time"
+    "github.com/gorilla/mux"	
 )
 
 type Users struct {
@@ -23,7 +24,7 @@ type Posts struct {
 var client *mongo.client
 
 func createUser(response http.ResponseWriter,request *http.Request){
-	response>header().Add("Content-type","application/json")
+	response.header().Add("Content-type","application/json")
 	var user User
 	json.NewDecoder(request,Body).Decode(&user)
 	collection := client.database("insta").Collection("user")
@@ -34,7 +35,7 @@ func createUser(response http.ResponseWriter,request *http.Request){
 
 
 func createPostEndpoint(response http.ResponseWriter,request *http.Request){
-	response>header().Add("Content-type","application/json")
+	response.header().Add("Content-type","application/json")
 	var post Post
 	json.NewDecoder(request,Body).Decode(&user)
 	collection := client.database("insta").Collection("post")
