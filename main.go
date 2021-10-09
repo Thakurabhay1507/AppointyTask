@@ -4,6 +4,8 @@ import (
     "fmt"
     "net/url"
     "time"
+    "github.com/mongodb/mongo-go-driver/bson/primitive"
+    "github.com/mongodb/mongo-go-driver/mongo"
     "github.com/gorilla/mux"	
 )
 
@@ -23,8 +25,8 @@ type Posts struct {
 
 var client *mongo.client
 
-func createUser(response http.ResponseWriter,request *http.Request){
-	response.header().Add("Content-type","application/json")
+func CreateUserEndpoint(response http.ResponseWriter,request *http.Request){
+	response.Header().Add("Content-type","application/json")
 	var user User
 	json.NewDecoder(request,Body).Decode(&user)
 	collection := client.database("insta").Collection("user")
@@ -34,8 +36,8 @@ func createUser(response http.ResponseWriter,request *http.Request){
 }
 
 
-func createPostEndpoint(response http.ResponseWriter,request *http.Request){
-	response.header().Add("Content-type","application/json")
+func CreatePostEndpoint(response http.ResponseWriter,request *http.Request){
+	response.Header().Add("Content-type","application/json")
 	var post Post
 	json.NewDecoder(request,Body).Decode(&user)
 	collection := client.database("insta").Collection("post")
@@ -107,13 +109,14 @@ func GetUserEndpoint(response http.ResponseWriter,request *http.request){
 func main(){
 	fmt.println("Starting an application..")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	client, _ = mongo.Connect(ctx,"mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client, _ = mongo.Connect(ctx, clientOptions)
 	router := mux.NewRouter()
 	router.handleFunc("/user", CreateUserEndpoint).Methods("POST")
 	router.handleFunc("/User/{id}", GetUserEndpoint).Methods("GET")
 	router.handleFunc("/post", CreatePostEndpoint).Methods("POST")
-	router.handleFunc("/post/user/{id}", GetUserPostEndpoint).Methods("GET")
-	router.handleFunc("/Post/{id}", GetPostEndpoint).Methods("GET")
+	router.handleFunc("/post/user/{id}", GetUserPostsEndpoint).Methods("GET")
+	router.handleFunc("/Post/{id}", GetPostsEndpoint).Methods("GET")
 	http.ListenAndServer(":12345",router)
 
 }
